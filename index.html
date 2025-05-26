@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSE Project Financial Analysis Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Saved Projects Sidebar -->
+        <aside class="projects-sidebar">
+            <h2>Saved Projects</h2>
+            <div class="projects-list" id="projectsList">
+                <!-- Projects will be loaded here -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="logo-title">
+                        <img src="e11ecbe8-2a41-40eb-9d42-f75af8a5b2b8.png" alt="Wave Swell Energy Logo" class="company-logo">
+                        <h1>WSE Project Financial Analysis Tool</h1>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-container">
+                <div class="content-wrapper">
+                    <section class="input-section">
+                        <form id="projectForm">
+                            <!-- Project Name and Save Button -->
+                            <div class="project-header">
+                                <div class="form-group project-name-group">
+                                    <label for="projectName">Project Name</label>
+                                    <input type="text" id="projectName" required placeholder="Enter project name">
+                                </div>
+                                <button type="button" id="saveProjectButton" class="secondary-button">Save Project</button>
+                            </div>
+
+                            <div class="input-columns">
+                                <!-- Column 1: Basic Info -->
+                                <div class="input-column">
+                                    <h3>Basic Information</h3>
+                                    <div class="input-card">
+                                        <div class="form-group">
+                                            <label for="energyOutput">Energy Output (MWh/year)</label>
+                                            <input type="number" id="energyOutput" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="capex">CAPEX (AUD)</label>
+                                            <input type="number" id="capex" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="opexPercent">OPEX (% of CAPEX)</label>
+                                            <input type="number" id="opexPercent" required step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Column 2: Project Timeline -->
+                                <div class="input-column">
+                                    <h3>Project Timeline</h3>
+                                    <div class="input-card">
+                                        <div class="form-group">
+                                            <label for="projectLife">Project Life (years)</label>
+                                            <input type="number" id="projectLife" required min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="developmentTime">Development Time (years)</label>
+                                            <input type="number" id="developmentTime" required min="0" step="0.5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="discountRate">Discount Rate (%)</label>
+                                            <input type="number" id="discountRate" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="financeTerm">Finance Term (years)</label>
+                                            <input type="number" id="financeTerm" required min="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Column 3: Financial Parameters -->
+                                <div class="input-column">
+                                    <h3>Financial Parameters</h3>
+                                    <div class="input-card">
+                                        <div class="form-group">
+                                            <label for="debtEquityRatio">Debt/Equity Ratio (%)</label>
+                                            <input type="number" id="debtEquityRatio" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="interestRate">Interest Rate (%)</label>
+                                            <input type="number" id="interestRate" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="tariff">Tariff (AUD/MWh)</label>
+                                            <input type="number" id="tariff" required step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="rec">REC (AUD/MWh)</label>
+                                            <input type="number" id="rec" required step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <div class="button-group">
+                                    <button type="submit" class="primary-button">Calculate</button>
+                                    <button type="button" class="secondary-button" id="clearButton">Clear All</button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="results-section">
+                        <!-- Current Project Name Display -->
+                        <div id="currentProjectDisplay" class="current-project-display"></div>
+                        
+                        <div class="results-grid">
+                            <div class="metric-column">
+                                <h2>Project Metrics</h2>
+                                <div class="metric-card">
+                                    <h3>LCOE</h3>
+                                    <p id="lcoeValue">-</p>
+                                    <span>AUD/MWh</span>
+                                </div>
+                                <div class="metric-card">
+                                    <h3>Project NPV</h3>
+                                    <p id="projectNpvValue">-</p>
+                                    <span>AUD</span>
+                                </div>
+                                <div class="metric-card">
+                                    <h3>Project IRR</h3>
+                                    <p id="projectIrrValue">-</p>
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="metric-column">
+                                <h2>Equity Metrics</h2>
+                                <div class="metric-card">
+                                    <h3>Equity NPV</h3>
+                                    <p id="equityNpvValue">-</p>
+                                    <span>AUD</span>
+                                </div>
+                                <div class="metric-card">
+                                    <h3>Equity IRR</h3>
+                                    <p id="equityIrrValue">-</p>
+                                    <span>%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="export-buttons">
+                            <button id="downloadButton" class="export-button" disabled>
+                                Export Full Analysis (CSV)
+                            </button>
+                            <button id="exportPdfButton" class="export-button" disabled>
+                                Export Summary (PDF)
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            <footer>
+                <p>© 2024 WSE Project Financial Analysis Tool</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
